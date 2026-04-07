@@ -1,26 +1,45 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useData } from "./data";
 
-const groups = [
-  { stage: "New", deals: ["Aung Aung - Lanmadaw Condo", "Su Su - Insein House"] },
-  { stage: "Contacted", deals: ["Min Thu - Sanchaung Apartment"] },
-  { stage: "Visit", deals: ["Mya Mya - Dagon Land"] },
-  { stage: "Negotiation", deals: ["Ko Lin - Bahan Condo"] },
-  { stage: "Closed", deals: ["Hnin - North Okkalapa House"] }
-];
+const stageLabels = {
+  new: "New",
+  contacted: "Contacted",
+  visit: "Visit",
+  negotiation: "Negotiation",
+  closed: "Closed"
+} as const;
 
 export default function DealsScreen() {
+  const { deals, advanceDeal, clientLookup, propertyLookup } = useData();
+  const grouped = deals.reduce<Record<string, typeof deals>>((acc, deal) => {
+    acc[deal.stage] = acc[deal.stage] ? [...acc[deal.stage], deal] : [deal];
+    return acc;
+  }, {});
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Deals</Text>
-        {groups.map((group) => (
-          <View key={group.stage} style={styles.card}>
-            <Text style={styles.stage}>{group.stage}</Text>
-            {group.deals.map((deal) => (
-              <Text key={deal} style={styles.deal}>
-                • {deal}
-              </Text>
-            ))}
+        {Object.entries(stageLabels).map(([stageKey, label]) => (
+          <View key={stageKey} style={styles.card}>
+            <Text style={styles.stage}>{label}</Text>
+            {(grouped[stageKey] || []).map((deal) => {
+              const label =
+                deal.title ||
+                `${clientLookup.get(deal.client_id ?? 0) ?? "Client"} - ${
+                  propertyLookup.get(deal.property_id ?? 0) ?? "Property"
+                }`;
+              return (
+              <View key={deal.id} style={styles.dealRow}>
+                <Text style={styles.deal}>• {label}</Text>
+                {stageKey !== "closed" ? (
+                  <Pressable onPress={() => advanceDeal(deal.id)} style={styles.action}>
+                    <Text style={styles.actionText}>Advance</Text>
+                  </Pressable>
+                ) : null}
+              </View>
+              );
+            })}
           </View>
         ))}
       </ScrollView>
@@ -53,8 +72,25 @@ const styles = StyleSheet.create({
     color: "#bc6c25",
     marginBottom: 8
   },
+  dealRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 12
+  },
   deal: {
     color: "#354463",
     marginBottom: 6
+  },
+  action: {
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e4d7c8"
+  },
+  actionText: {
+    color: "#14213d",
+    fontWeight: "700"
   }
 });

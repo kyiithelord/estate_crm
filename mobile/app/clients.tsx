@@ -1,18 +1,15 @@
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-
-const clients = [
-  { name: "Aung Aung", interest: "Buy", phone: "+95 9 123 456 789" },
-  { name: "Su Su", interest: "Rent", phone: "+95 9 987 654 321" },
-  { name: "Min Thu", interest: "Buy", phone: "+95 9 444 555 666" }
-];
+import { useData } from "./data";
 
 export default function ClientsScreen() {
+  const { clients } = useData();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Clients</Text>
         {clients.map((client) => (
-          <View key={client.name} style={styles.card}>
+          <View key={client.id} style={styles.card}>
             <Text style={styles.name}>{client.name}</Text>
             <Text style={styles.meta}>{client.interest}</Text>
             <Text style={styles.meta}>{client.phone}</Text>

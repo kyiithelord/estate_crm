@@ -37,6 +37,22 @@ button {
   cursor: pointer;
 }
 
+input,
+select {
+  width: 100%;
+  padding: 0.65rem 0.8rem;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #fffdf8;
+  font: inherit;
+}
+
+.ghost {
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink);
+}
+
 .shell {
   min-height: 100vh;
   display: grid;
@@ -170,6 +186,25 @@ button {
   margin-bottom: 1rem;
 }
 
+.quick-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.quick-form {
+  display: grid;
+  gap: 0.6rem;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff8ef;
+  border: 1px solid var(--border);
+}
+
+.quick-form h4 {
+  margin: 0 0 0.4rem;
+}
+
 .kanban {
   display: grid;
   gap: 1rem;
@@ -203,6 +238,8 @@ button {
   border-radius: 16px;
   background: #fffdf8;
   border: 1px solid var(--border);
+  display: grid;
+  gap: 0.4rem;
 }
 
 .deal-card p,
@@ -239,6 +276,12 @@ td {
   align-content: start;
 }
 
+.task-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .pill {
   align-self: start;
   display: inline-flex;
@@ -272,7 +315,8 @@ td {
   .hero,
   .two-column,
   .stats-grid,
-  .kanban {
+  .kanban,
+  .quick-grid {
     grid-template-columns: 1fr;
   }
 }
