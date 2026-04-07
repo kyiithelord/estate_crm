@@ -1,0 +1,278 @@
+:root {
+  font-family: "Segoe UI", sans-serif;
+  color: #14213d;
+  background: #f7f3ea;
+  line-height: 1.5;
+  font-weight: 400;
+  --bg: #f7f3ea;
+  --panel: #fffdf8;
+  --ink: #14213d;
+  --muted: #5c677d;
+  --accent: #bc6c25;
+  --accent-soft: #f4d7b3;
+  --border: #e4d7c8;
+  --success: #426b1f;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--ink);
+  background:
+    radial-gradient(circle at top left, #f4d7b3 0, transparent 32%),
+    linear-gradient(180deg, #faf6ee 0%, #f3ecdf 100%);
+}
+
+button {
+  border: 0;
+  border-radius: 999px;
+  padding: 0.75rem 1rem;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 250px 1fr;
+}
+
+.sidebar {
+  padding: 2rem 1.25rem;
+  border-right: 1px solid rgba(20, 33, 61, 0.08);
+  background: rgba(255, 253, 248, 0.72);
+  backdrop-filter: blur(12px);
+}
+
+.brand {
+  display: flex;
+  gap: 0.9rem;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.brand h1,
+.brand p,
+.hero h2,
+.hero p,
+.panel h3,
+.kanban-column h4 {
+  margin: 0;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 18px;
+  font-weight: 700;
+  color: #fff;
+  background: linear-gradient(135deg, #bc6c25, #dda15e);
+}
+
+.sidebar nav {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.sidebar a {
+  display: block;
+  padding: 0.8rem 1rem;
+  border-radius: 14px;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.sidebar a:hover {
+  background: rgba(188, 108, 37, 0.1);
+}
+
+.content {
+  padding: 2rem;
+  display: grid;
+  gap: 1.5rem;
+}
+
+.hero,
+.panel,
+.stat-card {
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 253, 248, 0.9);
+  box-shadow: 0 18px 45px rgba(20, 33, 61, 0.06);
+}
+
+.hero {
+  padding: 1.5rem;
+  display: grid;
+  grid-template-columns: 1.6fr 280px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.eyebrow {
+  margin: 0 0 0.4rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.hero-copy {
+  max-width: 58ch;
+  color: var(--muted);
+}
+
+.quick-card {
+  padding: 1.25rem;
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff6e8 0%, #fde7c8 100%);
+}
+
+.stats-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.stat-card {
+  padding: 1.2rem;
+}
+
+.stat-card span {
+  display: block;
+  color: var(--muted);
+}
+
+.stat-card strong {
+  display: block;
+  margin-top: 0.4rem;
+  font-size: 2rem;
+}
+
+.panel {
+  padding: 1.25rem;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.kanban {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.kanban-column {
+  min-height: 250px;
+  padding: 1rem;
+  border-radius: 18px;
+  background: #fff8ef;
+  border: 1px solid var(--border);
+}
+
+.kanban-column header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.deal-list,
+.task-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.deal-card,
+.task-card {
+  padding: 0.9rem;
+  border-radius: 16px;
+  background: #fffdf8;
+  border: 1px solid var(--border);
+}
+
+.deal-card p,
+.deal-card small,
+.task-card p {
+  margin: 0.2rem 0 0;
+  color: var(--muted);
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.9rem 0.75rem;
+  text-align: left;
+  border-top: 1px solid var(--border);
+}
+
+.two-column {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1.35fr 0.9fr;
+}
+
+.task-panel {
+  display: grid;
+  align-content: start;
+}
+
+.pill {
+  align-self: start;
+  display: inline-flex;
+  padding: 0.35rem 0.7rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: capitalize;
+}
+
+.pill.pending {
+  color: #7c4f00;
+  background: #ffe2b8;
+}
+
+.pill.completed {
+  color: var(--success);
+  background: #ddeccf;
+}
+
+@media (max-width: 1100px) {
+  .shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    border-right: 0;
+    border-bottom: 1px solid rgba(20, 33, 61, 0.08);
+  }
+
+  .hero,
+  .two-column,
+  .stats-grid,
+  .kanban {
+    grid-template-columns: 1fr;
+  }
+}

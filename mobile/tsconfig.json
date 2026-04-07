@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "target": "ES2020",
+    "allowSyntheticDefaultImports": true,
+    "skipLibCheck": true
+  },
+  "include": [
+    "app",
+    "components"
+  ],
+  "extends": "expo/tsconfig.base"
+}

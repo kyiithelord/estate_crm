@@ -1,0 +1,22 @@
+<?php
+
+use Illuminate\Support\Facades\Route;
+
+Route::prefix("auth")->group(function (): void {
+    Route::post("/register", "AuthController@register");
+    Route::post("/login", "AuthController@login");
+});
+
+Route::middleware("auth:sanctum")->group(function (): void {
+    Route::post("/logout", "AuthController@logout");
+
+    Route::get("/dashboard", "DashboardController@index");
+
+    Route::apiResource("properties", "PropertyController");
+    Route::apiResource("clients", "ClientController");
+    Route::apiResource("deals", "DealController");
+    Route::patch("/deals/{deal}/stage", "DealStageController@update");
+
+    Route::apiResource("tasks", "TaskController");
+    Route::patch("/tasks/{task}/complete", "TaskCompleteController@update");
+});
