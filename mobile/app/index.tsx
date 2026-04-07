@@ -1,13 +1,11 @@
 import { Link } from "expo-router";
 import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-
-const tasks = [
-  "Call Aung Aung about condo viewing",
-  "Send offer details to Su Su",
-  "Confirm visit time with Min Thu"
-];
+import { useData } from "./data";
 
 export default function HomeScreen() {
+  const { tasks } = useData();
+  const topTasks = tasks.slice(0, 3);
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
@@ -19,9 +17,9 @@ export default function HomeScreen() {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Today</Text>
-          {tasks.map((task) => (
-            <Text key={task} style={styles.listItem}>
-              • {task}
+          {topTasks.map((task) => (
+            <Text key={task.id} style={styles.listItem}>
+              • {task.title}
             </Text>
           ))}
         </View>

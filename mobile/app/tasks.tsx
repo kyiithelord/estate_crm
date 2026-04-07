@@ -1,21 +1,29 @@
-import { SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
-
-const tasks = [
-  { title: "Call Aung Aung", due: "Today 4:00 PM", status: "Pending" },
-  { title: "Prepare visit notes", due: "Tomorrow 10:00 AM", status: "Pending" },
-  { title: "Update closed deal", due: "Done", status: "Completed" }
-];
+import { Pressable, SafeAreaView, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useData } from "./data";
 
 export default function TasksScreen() {
+  const { tasks, toggleTask } = useData();
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Tasks</Text>
         {tasks.map((task) => (
-          <View key={task.title} style={styles.card}>
+          <View key={task.id} style={styles.card}>
             <Text style={styles.taskTitle}>{task.title}</Text>
-            <Text style={styles.meta}>{task.due}</Text>
-            <Text style={styles.status}>{task.status}</Text>
+            <Text style={styles.meta}>
+              {task.due
+                ? task.due
+                : task.due_date
+                  ? new Date(task.due_date).toLocaleString()
+                  : "Today"}
+            </Text>
+            <View style={styles.actions}>
+              <Text style={styles.status}>{task.status}</Text>
+              <Pressable onPress={() => toggleTask(task.id)} style={styles.action}>
+                <Text style={styles.actionText}>{task.status === "pending" ? "Complete" : "Reopen"}</Text>
+              </Pressable>
+            </View>
           </View>
         ))}
       </ScrollView>
@@ -54,6 +62,23 @@ const styles = StyleSheet.create({
   status: {
     marginTop: 8,
     color: "#bc6c25",
+    fontWeight: "700"
+  },
+  actions: {
+    marginTop: 8,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between"
+  },
+  action: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: "#e4d7c8"
+  },
+  actionText: {
+    color: "#14213d",
     fontWeight: "700"
   }
 });
