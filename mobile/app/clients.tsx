@@ -8,6 +8,7 @@ export default function ClientsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Clients</Text>
+        {!clients.length ? <Text style={styles.empty}>No clients yet.</Text> : null}
         {clients.map((client) => (
           <View key={client.id} style={styles.card}>
             <Text style={styles.name}>{client.name}</Text>
@@ -33,6 +34,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     color: "#14213d"
+  },
+  empty: {
+    color: "#5c677d",
+    fontSize: 16
   },
   card: {
     borderRadius: 20,

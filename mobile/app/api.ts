@@ -20,5 +20,6 @@ export const api = {
   listTasks: () => request("/tasks"),
   updateDealStage: (id: number, stage: string) =>
     request(`/deals/${id}/stage`, { method: "PATCH", body: JSON.stringify({ stage }) }),
-  completeTask: (id: number) => request(`/tasks/${id}/complete`, { method: "PATCH" })
+  updateTask: (id: number, payload: Record<string, unknown>) =>
+    request(`/tasks/${id}`, { method: "PATCH", body: JSON.stringify(payload) })
 };

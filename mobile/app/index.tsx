@@ -17,6 +17,7 @@ export default function HomeScreen() {
 
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Today</Text>
+          {!topTasks.length ? <Text style={styles.empty}>No tasks yet.</Text> : null}
           {topTasks.map((task) => (
             <Text key={task.id} style={styles.listItem}>
               • {task.title}
@@ -83,6 +84,9 @@ const styles = StyleSheet.create({
   listItem: {
     color: "#354463",
     marginBottom: 8
+  },
+  empty: {
+    color: "#5c677d"
   },
   grid: {
     gap: 12

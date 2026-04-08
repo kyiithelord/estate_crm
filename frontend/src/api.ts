@@ -1,4 +1,5 @@
-const API_BASE = (import.meta as { env?: Record<string, string> }).env?.VITE_API_URL || "http://localhost:8000/api";
+const env = (import.meta as { env?: Record<string, string | boolean> }).env ?? {};
+const API_BASE = (env.VITE_API_URL as string | undefined) || (env.DEV ? "http://localhost:8000/api" : "/api");
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`, {
@@ -7,7 +8,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   });
 
   if (!response.ok) {
-    throw new Error(`API ${response.status}`);
+    let message = `API ${response.status}`;
+
+    try {
+      const data = (await response.json()) as { message?: string };
+      if (data?.message) {
+        message = data.message;
+      }
+    } catch {
+      // Keep the fallback status message when no JSON error payload is available.
+    }
+
+    throw new Error(message);
   }
 
   return response.json() as Promise<T>;
@@ -24,5 +36,5 @@ export const api = {
     request(`/deals/${id}/stage`, { method: "PATCH", body: JSON.stringify({ stage }) }),
   listTasks: () => request("/tasks"),
   createTask: (payload: unknown) => request("/tasks", { method: "POST", body: JSON.stringify(payload) }),
-  completeTask: (id: number) => request(`/tasks/${id}/complete`, { method: "PATCH" })
+  updateTask: (id: number, payload: unknown) => request(`/tasks/${id}`, { method: "PATCH", body: JSON.stringify(payload) })
 };
