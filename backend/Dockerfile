@@ -33,6 +33,7 @@ RUN apt-get update \
     && docker-php-ext-install bcmath curl dom mbstring pdo_mysql xml xmlwriter zip \
     && a2enmod rewrite \
     && rm -rf /var/lib/apt/lists/*
+COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
 COPY docker/entrypoint.sh /usr/local/bin/backend-entrypoint
 COPY --from=vendor-production /var/www/html/vendor /var/www/html/vendor
