@@ -8,6 +8,7 @@ export default function TasksScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Tasks</Text>
+        {!tasks.length ? <Text style={styles.empty}>No tasks yet.</Text> : null}
         {tasks.map((task) => (
           <View key={task.id} style={styles.card}>
             <Text style={styles.taskTitle}>{task.title}</Text>
@@ -19,7 +20,9 @@ export default function TasksScreen() {
                   : "Today"}
             </Text>
             <View style={styles.actions}>
-              <Text style={styles.status}>{task.status}</Text>
+              <Text style={[styles.status, task.status === "completed" ? styles.statusCompleted : styles.statusPending]}>
+                {task.status}
+              </Text>
               <Pressable onPress={() => toggleTask(task.id)} style={styles.action}>
                 <Text style={styles.actionText}>{task.status === "pending" ? "Complete" : "Reopen"}</Text>
               </Pressable>
@@ -45,10 +48,16 @@ const styles = StyleSheet.create({
     fontWeight: "700",
     color: "#14213d"
   },
+  empty: {
+    color: "#5c677d",
+    fontSize: 16
+  },
   card: {
     borderRadius: 20,
     padding: 16,
-    backgroundColor: "#ffffff"
+    backgroundColor: "#ffffff",
+    borderWidth: 1,
+    borderColor: "#e4d7c8"
   },
   taskTitle: {
     fontSize: 17,
@@ -60,22 +69,38 @@ const styles = StyleSheet.create({
     color: "#5c677d"
   },
   status: {
-    marginTop: 8,
-    color: "#bc6c25",
-    fontWeight: "700"
+    minWidth: 98,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
+    fontWeight: "700",
+    textAlign: "center",
+    textTransform: "capitalize"
+  },
+  statusPending: {
+    color: "#9b5d00",
+    backgroundColor: "#ffe2b8"
+  },
+  statusCompleted: {
+    color: "#426b1f",
+    backgroundColor: "#ddeccf"
   },
   actions: {
     marginTop: 8,
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "space-between"
+    justifyContent: "flex-start",
+    gap: 10
   },
   action: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
+    minWidth: 98,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 999,
     borderWidth: 1,
-    borderColor: "#e4d7c8"
+    borderColor: "#e4d7c8",
+    alignItems: "center",
+    justifyContent: "center"
   },
   actionText: {
     color: "#14213d",

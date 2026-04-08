@@ -116,6 +116,15 @@ select {
   gap: 1.5rem;
 }
 
+.feedback {
+  margin: 0;
+  padding: 0.9rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: #fff8ef;
+  color: var(--ink);
+}
+
 .hero,
 .panel,
 .stat-card {
@@ -249,6 +258,11 @@ select {
   color: var(--muted);
 }
 
+.empty-copy {
+  margin: 0;
+  color: var(--muted);
+}
+
 .table-wrap {
   overflow-x: auto;
 }
@@ -263,6 +277,10 @@ td {
   padding: 0.9rem 0.75rem;
   text-align: left;
   border-top: 1px solid var(--border);
+}
+
+.empty-cell {
+  color: var(--muted);
 }
 
 .two-column {

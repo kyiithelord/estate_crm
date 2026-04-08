@@ -8,10 +8,11 @@ export default function PropertiesScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Properties</Text>
+        {!properties.length ? <Text style={styles.empty}>No properties yet.</Text> : null}
         {properties.map((property) => (
           <View key={property.id} style={styles.card}>
             <Text style={styles.propertyTitle}>{property.title}</Text>
-            <Text style={styles.meta}>{"property_type" in property ? property.property_type : property.type}</Text>
+            <Text style={styles.meta}>{property.property_type ?? property.type ?? "-"}</Text>
             <Text style={styles.meta}>{property.location}</Text>
             <Text style={styles.meta}>{property.status}</Text>
           </View>
@@ -34,6 +35,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     color: "#14213d"
+  },
+  empty: {
+    color: "#5c677d",
+    fontSize: 16
   },
   card: {
     borderRadius: 20,

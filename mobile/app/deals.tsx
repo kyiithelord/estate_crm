@@ -20,6 +20,7 @@ export default function DealsScreen() {
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Deals</Text>
+        {!deals.length ? <Text style={styles.empty}>No deals yet.</Text> : null}
         {Object.entries(stageLabels).map(([stageKey, label]) => (
           <View key={stageKey} style={styles.card}>
             <Text style={styles.stage}>{label}</Text>
@@ -60,6 +61,10 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "700",
     color: "#14213d"
+  },
+  empty: {
+    color: "#5c677d",
+    fontSize: 16
   },
   card: {
     borderRadius: 20,

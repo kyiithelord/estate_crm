@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { api } from "./api";
-import { initialClients, initialDeals, initialProperties, initialTasks } from "./mockData";
 
 const stages = [
   { key: "new", label: "New Lead" },
@@ -11,15 +10,34 @@ const stages = [
 ] as const;
 
 function App() {
-  const [properties, setProperties] = useState(initialProperties);
-  const [clients, setClients] = useState(initialClients);
-  const [deals, setDeals] = useState(initialDeals);
-  const [tasks, setTasks] = useState(initialTasks);
+  const [properties, setProperties] = useState<any[]>([]);
+  const [clients, setClients] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [feedback, setFeedback] = useState<string>("");
 
   const [propertyForm, setPropertyForm] = useState({ title: "", type: "sale", location: "", price: "" });
   const [clientForm, setClientForm] = useState({ name: "", interest: "buy", phone: "" });
   const [dealForm, setDealForm] = useState({ clientId: "", propertyId: "", stage: "new" });
   const [taskForm, setTaskForm] = useState({ title: "", due: "" });
+
+  const scrollToForm = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
+  const loadData = async () => {
+    const [nextProperties, nextClients, nextDeals, nextTasks] = await Promise.all([
+      api.listProperties(),
+      api.listClients(),
+      api.listDeals(),
+      api.listTasks()
+    ]);
+
+    setProperties(nextProperties as typeof properties);
+    setClients(nextClients as typeof clients);
+    setDeals(nextDeals as typeof deals);
+    setTasks(nextTasks as typeof tasks);
+  };
 
   const stats = useMemo(() => {
     const openDeals = deals.filter((deal) => deal.stage !== "closed").length;
@@ -50,27 +68,38 @@ function App() {
   );
 
   useEffect(() => {
+    let cancelled = false;
+    let retryTimer: number | undefined;
+
     const load = async () => {
       try {
-        const [nextProperties, nextClients, nextDeals, nextTasks] = await Promise.all([
-          api.listProperties(),
-          api.listClients(),
-          api.listDeals(),
-          api.listTasks()
-        ]);
-        setProperties(nextProperties as typeof properties);
-        setClients(nextClients as typeof clients);
-        setDeals(nextDeals as typeof deals);
-        setTasks(nextTasks as typeof tasks);
+        await loadData();
+        if (!cancelled) {
+          setFeedback("");
+        }
       } catch {
-        // Keep local seed data if API is unavailable.
+        if (!cancelled) {
+          setProperties([]);
+          setClients([]);
+          setDeals([]);
+          setTasks([]);
+          setFeedback("Could not load data from the backend yet. Retrying automatically...");
+          retryTimer = window.setTimeout(load, 2000);
+        }
       }
     };
 
     load();
+
+    return () => {
+      cancelled = true;
+      if (retryTimer) {
+        window.clearTimeout(retryTimer);
+      }
+    };
   }, []);
 
-  const handleAddProperty = (event: FormEvent) => {
+  const handleAddProperty = async (event: FormEvent) => {
     event.preventDefault();
     if (!propertyForm.title.trim() || !propertyForm.location.trim()) {
       return;
@@ -83,26 +112,17 @@ function App() {
       price: propertyForm.price ? Number(propertyForm.price) : 0
     };
 
-    api
-      .createProperty(nextProperty)
-      .then((created) => setProperties((prev) => [...prev, created as typeof properties[number]]))
-      .catch(() =>
-        setProperties((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            title: propertyForm.title,
-            type: propertyForm.type,
-            location: propertyForm.location,
-            status: "available",
-            price: propertyForm.price || "-"
-          }
-        ])
-      );
-    setPropertyForm({ title: "", type: "sale", location: "", price: "" });
+    try {
+      await api.createProperty(nextProperty);
+      await loadData();
+      setPropertyForm({ title: "", type: "sale", location: "", price: "" });
+      setFeedback("Property saved.");
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Could not save property.");
+    }
   };
 
-  const handleAddClient = (event: FormEvent) => {
+  const handleAddClient = async (event: FormEvent) => {
     event.preventDefault();
     if (!clientForm.name.trim()) {
       return;
@@ -113,25 +133,17 @@ function App() {
       phone: clientForm.phone || null
     };
 
-    api
-      .createClient(nextClient)
-      .then((created) => setClients((prev) => [...prev, created as typeof clients[number]]))
-      .catch(() =>
-        setClients((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            name: clientForm.name,
-            interest: clientForm.interest,
-            agent: "You",
-            phone: clientForm.phone || "-"
-          }
-        ])
-      );
-    setClientForm({ name: "", interest: "buy", phone: "" });
+    try {
+      await api.createClient(nextClient);
+      await loadData();
+      setClientForm({ name: "", interest: "buy", phone: "" });
+      setFeedback("Client saved.");
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Could not save client.");
+    }
   };
 
-  const handleAddDeal = (event: FormEvent) => {
+  const handleAddDeal = async (event: FormEvent) => {
     event.preventDefault();
     if (!dealForm.clientId || !dealForm.propertyId) {
       return;
@@ -142,25 +154,17 @@ function App() {
       stage: dealForm.stage
     };
 
-    api
-      .createDeal(nextDeal)
-      .then((created) => setDeals((prev) => [...prev, created as typeof deals[number]]))
-      .catch(() =>
-        setDeals((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            client_id: Number(dealForm.clientId),
-            property_id: Number(dealForm.propertyId),
-            task: "Follow up",
-            stage: dealForm.stage as (typeof stages)[number]["key"]
-          }
-        ])
-      );
-    setDealForm({ clientId: "", propertyId: "", stage: "new" });
+    try {
+      await api.createDeal(nextDeal);
+      await loadData();
+      setDealForm({ clientId: "", propertyId: "", stage: "new" });
+      setFeedback("Deal saved.");
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Could not save deal.");
+    }
   };
 
-  const handleAddTask = (event: FormEvent) => {
+  const handleAddTask = async (event: FormEvent) => {
     event.preventDefault();
     if (!taskForm.title.trim()) {
       return;
@@ -171,32 +175,28 @@ function App() {
       due_date: taskForm.due || new Date().toISOString()
     };
 
-    api
-      .createTask(nextTask)
-      .then((created) => setTasks((prev) => [...prev, created as typeof tasks[number]]))
-      .catch(() =>
-        setTasks((prev) => [
-          ...prev,
-          {
-            id: prev.length + 1,
-            title: taskForm.title,
-            due: taskForm.due || "Today",
-            status: "pending"
-          }
-        ])
-      );
-    setTaskForm({ title: "", due: "" });
+    try {
+      await api.createTask(nextTask);
+      await loadData();
+      setTaskForm({ title: "", due: "" });
+      setFeedback("Task saved.");
+    } catch (error) {
+      setFeedback(error instanceof Error ? error.message : "Could not save task.");
+    }
   };
 
   const toggleTask = (id: number) => {
     const nextStatus = tasks.find((task) => task.id === id)?.status === "pending" ? "completed" : "pending";
+    const previousTasks = tasks;
 
     setTasks((prev) =>
       prev.map((task) => (task.id === id ? { ...task, status: nextStatus ?? task.status } : task))
     );
 
-    if (nextStatus === "completed") {
-      api.completeTask(id).catch(() => null);
+    if (nextStatus) {
+      api.updateTask(id, { status: nextStatus }).catch(() => {
+        setTasks(previousTasks);
+      });
     }
   };
 
@@ -206,16 +206,19 @@ function App() {
       if (deal.id !== id) {
         return deal;
       }
-      const currentIndex = stageOrder.indexOf(deal.stage);
-      const nextIndex = Math.min(currentIndex + 1, stageOrder.length - 1);
-      return { ...deal, stage: stageOrder[nextIndex] };
-    });
+        const currentIndex = stageOrder.indexOf(deal.stage);
+        const nextIndex = Math.min(currentIndex + 1, stageOrder.length - 1);
+        return { ...deal, stage: stageOrder[nextIndex] };
+      });
+    const previousDeals = deals;
 
     setDeals(nextDeals);
 
     const updatedDeal = nextDeals.find((deal) => deal.id === id);
     if (updatedDeal) {
-      api.updateDealStage(id, updatedDeal.stage).catch(() => null);
+      api.updateDealStage(id, updatedDeal.stage).catch(() => {
+        setDeals(previousDeals);
+      });
     }
   };
 
@@ -239,6 +242,7 @@ function App() {
       </aside>
 
       <main className="content">
+        {feedback ? <p className="feedback">{feedback}</p> : null}
         <section id="dashboard" className="hero">
           <div>
             <p className="eyebrow">Real estate CRM SaaS</p>
@@ -250,7 +254,7 @@ function App() {
           <div className="quick-card">
             <h3>Today</h3>
             <p>{stats[3].value} reminders due</p>
-            <button type="button">Create reminder</button>
+            <button type="button" onClick={() => scrollToForm("quick-add-task")}>Create reminder</button>
           </div>
         </section>
 
@@ -263,13 +267,13 @@ function App() {
           ))}
         </section>
 
-        <section className="panel">
+        <section className="panel" id="quick-add">
           <div className="panel-header">
             <h3>Quick Add</h3>
             <p className="eyebrow">Live data flow</p>
           </div>
           <div className="quick-grid">
-            <form className="quick-form" onSubmit={handleAddProperty}>
+            <form id="quick-add-property" className="quick-form" onSubmit={handleAddProperty}>
               <h4>Add property</h4>
               <input
                 type="text"
@@ -299,7 +303,7 @@ function App() {
               <button type="submit">Save</button>
             </form>
 
-            <form className="quick-form" onSubmit={handleAddClient}>
+            <form id="quick-add-client" className="quick-form" onSubmit={handleAddClient}>
               <h4>Add client</h4>
               <input
                 type="text"
@@ -323,7 +327,7 @@ function App() {
               <button type="submit">Save</button>
             </form>
 
-            <form className="quick-form" onSubmit={handleAddDeal}>
+            <form id="quick-add-deal" className="quick-form" onSubmit={handleAddDeal}>
               <h4>Add deal</h4>
               <select
                 value={dealForm.clientId}
@@ -360,7 +364,7 @@ function App() {
               <button type="submit">Save</button>
             </form>
 
-            <form className="quick-form" onSubmit={handleAddTask}>
+            <form id="quick-add-task" className="quick-form" onSubmit={handleAddTask}>
               <h4>Add task</h4>
               <input
                 type="text"
@@ -385,7 +389,7 @@ function App() {
               <p className="eyebrow">Core feature</p>
               <h3>Deal Pipeline</h3>
             </div>
-            <button type="button">New deal</button>
+            <button type="button" onClick={() => scrollToForm("quick-add-deal")}>New deal</button>
           </div>
           <div className="kanban">
             {stages.map((stage) => (
@@ -395,6 +399,7 @@ function App() {
                   <span>{dealsByStage[stage.key].length}</span>
                 </header>
                 <div className="deal-list">
+                  {!dealsByStage[stage.key].length ? <p className="empty-copy">No deals in this stage yet.</p> : null}
                   {dealsByStage[stage.key].map((deal) => (
                     <article key={deal.id} className="deal-card">
                       <strong>
@@ -424,7 +429,7 @@ function App() {
         <section id="properties" className="panel">
           <div className="panel-header">
             <h3>Properties</h3>
-            <button type="button">Add property</button>
+            <button type="button" onClick={() => scrollToForm("quick-add-property")}>Add property</button>
           </div>
           <div className="table-wrap">
             <table>
@@ -438,6 +443,11 @@ function App() {
                 </tr>
               </thead>
               <tbody>
+                {!properties.length ? (
+                  <tr>
+                    <td colSpan={5} className="empty-cell">No properties yet.</td>
+                  </tr>
+                ) : null}
                 {properties.map((property) => (
                   <tr key={property.id}>
                     <td>{property.title}</td>
@@ -456,7 +466,7 @@ function App() {
           <div>
             <div className="panel-header">
               <h3>Clients</h3>
-              <button type="button">Add client</button>
+              <button type="button" onClick={() => scrollToForm("quick-add-client")}>Add client</button>
             </div>
             <div className="table-wrap">
               <table>
@@ -469,6 +479,11 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
+                {!clients.length ? (
+                  <tr>
+                    <td colSpan={4} className="empty-cell">No clients yet.</td>
+                  </tr>
+                ) : null}
                 {clients.map((client) => (
                   <tr key={client.id}>
                     <td>{client.name}</td>
@@ -485,9 +500,10 @@ function App() {
           <div id="tasks" className="task-panel">
             <div className="panel-header">
               <h3>Tasks</h3>
-              <button type="button">Add reminder</button>
+              <button type="button" onClick={() => scrollToForm("quick-add-task")}>Add reminder</button>
             </div>
             <div className="task-list">
+              {!tasks.length ? <p className="empty-copy">No tasks yet.</p> : null}
               {tasks.map((task) => (
                 <article key={task.id} className="task-card">
                   <div>
